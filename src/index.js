@@ -4,6 +4,7 @@ const path = require('path')
 const app = express()
 const hbs = require("hbs")
 
+const PORT = process.env.PORT || 7000
 
 const publicFolder = path.join(__dirname, '../public')
 const viewsPath = path.join(__dirname, "../views")
@@ -19,6 +20,6 @@ app.get('/', (req, res) => {
     res.render('index.hbs')
 })
 
-app.listen(7000, () => {
-    console.log("Listening On port")
+app.listen(PORT, () => {
+    console.log(`Listening On ${PORT}`)
 })

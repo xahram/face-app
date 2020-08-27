@@ -4,25 +4,54 @@ var img = document.getElementById('img')
 var inputField = document.getElementById('imgUpload')
 var canvas = document.getElementById('canvas')
 
-var inputChangeListner = async function (e) {
-    var selectedFile = e.target.files[0];
-    var reader = new FileReader();
 
-    // // var imgtag = document.getElementById("img");
+
+ 
+var inputChangeListner =  function (e) {
+    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height)
+    var selectedFile = e.target.files[0];
     img.title = selectedFile.name;
 
-    reader.onload = function (event) {
-        console.log(event)
-        img.src = event.target.result;
-    };
-
+    var reader = new FileReader();
     reader.readAsDataURL(selectedFile);
-    const detections = await faceapi.detectSingleFace(img)
-    const imageDimensions = { width: img.width, height: img.height }
-    const resizedDetections = faceapi.resizeResults(detections, imageDimensions)
-    faceapi.draw.drawDetections(canvas, detections)
+
+    // You have to put the code of detectSingleFace inside of onload
+    // Reason being readAsDataUrl function starts reading the file as base64
+    // which is asynchronus. When the file reader finish reading the file
+    // it triggers the event onload hence after  complete file reading 
+    // image.src becomes equal to our newly uploaded image
+    //For Further information on How file reader works check out mozilla docs https://developer.mozilla.org/en-US/docs/Web/API/FileReader
+    
+    reader.onload = async function (event) {
+        console.log(event.target)
+        img.src = event.target.result;
+        const detections = await faceapi.detectSingleFace(img)
+    console.log(detections)
+    try {
+
+        const imageDimensions = { width: img.width, height: img.height }
+        const resizedDetections = faceapi.resizeResults(detections, imageDimensions)
+       console.log(resizedDetections)
+        faceapi.draw.drawDetections(canvas, resizedDetections)
+
+     
+    } catch (error) {
+        console.log(error)
+    }
+        // img.src = event.target.value;
+    };
+    
+    
+
+
+
+    
+
 }
-inputField.onchange = inputChangeListner
+
+
+
+
 
 
 
@@ -50,7 +79,7 @@ modelLoadingFaceApi().then(async (val) => {
 }).catch((err) => { console.log(err) })
 
 
-
+inputField.onchange = inputChangeListner
 
 
 

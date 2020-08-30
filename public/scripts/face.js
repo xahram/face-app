@@ -6,8 +6,8 @@ var canvas = document.getElementById('canvas')
 
 
 
- 
-var inputChangeListner =  function (e) {
+
+var inputChangeListner = function (e) {
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height)
     var selectedFile = e.target.files[0];
     img.title = selectedFile.name;
@@ -21,31 +21,56 @@ var inputChangeListner =  function (e) {
     // it triggers the event onload hence after  complete file reading 
     // image.src becomes equal to our newly uploaded image
     //For Further information on How file reader works check out mozilla docs https://developer.mozilla.org/en-US/docs/Web/API/FileReader
-    
+
     reader.onload = async function (event) {
         console.log(event.target)
         img.src = event.target.result;
-        const detections = await faceapi.detectSingleFace(img)
-    console.log(detections)
-    try {
+        const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withAgeAndGender()
+        console.log(detections)
+        try {
 
-        const imageDimensions = { width: img.width, height: img.height }
-        const resizedDetections = faceapi.resizeResults(detections, imageDimensions)
-       console.log(resizedDetections)
-        faceapi.draw.drawDetections(canvas, resizedDetections)
+            const imageDimensions = { width: img.width, height: img.height }
+            const resizedDetections = faceapi.resizeResults(detections, imageDimensions)
+            console.log(resizedDetections)
+            const age = Math.ceil(resizedDetections.age);
+            const gender = resizedDetections.gender;
+            const genderProbability = resizedDetections.genderProbability;
+            faceapi.draw.drawDetections(canvas, resizedDetections)
+            const h3 = document.querySelectorAll("h3");
+            for (let i = 0; i < h3.length; i++) {
+                switch (i) {
+                    case 0:
+                        h3[i].innerText = "Gender : " + gender.toString();
+                        break;
 
-     
-    } catch (error) {
-        console.log(error)
-    }
+                    case 1:
+                        h3[i].innerText = "Probability Of Gender : " + Number(genderProbability, 2).toFixed().toString();
+                        break;
+
+                    case 2:
+                        h3[i].innerText = "Age : " + age.toString();
+                        break;
+
+                    default:
+                        break;
+                }
+                // i === 0 ? h3[i].innerText = gender : null
+                // i === 1 ? h3[i].innerText = gender : null
+                // i === 2 ? h3[i].innerText = gender : null
+            }
+
+
+        } catch (error) {
+            console.log(error)
+        }
         // img.src = event.target.value;
     };
-    
-    
 
 
 
-    
+
+
+
 
 }
 
@@ -62,11 +87,12 @@ const modelLoadingFaceApi = async () => {
         // net.loadFromUri(MODEL_URL),
         faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
         faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+        faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL)
     ])
     return modelTraining
 }
 modelLoadingFaceApi().then(async (val) => {
-    const detections = await faceapi.detectSingleFace(img)
+    const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withAgeAndGender()
     console.log(detections)
     const imageDimensions = { width: img.width, height: img.height }
 

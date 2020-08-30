@@ -44,7 +44,7 @@ var inputChangeListner = function (e) {
                         break;
 
                     case 1:
-                        h3[i].innerText = "Probability Of Gender : " + Number(genderProbability, 2).toFixed().toString();
+                        h3[i].innerText = "Probability Of Gender : " + Number(genderProbability).toFixed(2).toString();
                         break;
 
                     case 2:

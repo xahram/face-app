@@ -3,6 +3,8 @@ var MODEL_URL = "/weights";
 var img = document.getElementById('img')
 var inputField = document.getElementById('imgUpload')
 var canvas = document.getElementById('canvas')
+var loader = document.querySelector(".loader")
+
 
 
 
@@ -92,6 +94,12 @@ const modelLoadingFaceApi = async () => {
     return modelTraining
 }
 modelLoadingFaceApi().then(async (val) => {
+    loader.style.display = "none"
+    img.style.display = "block"
+    inputField.style.display = "block"
+    canvas.style.display = "block"
+
+
     const detections = await faceapi.detectSingleFace(img).withFaceLandmarks().withAgeAndGender()
     console.log(detections)
     const imageDimensions = { width: img.width, height: img.height }
